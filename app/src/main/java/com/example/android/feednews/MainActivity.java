@@ -12,12 +12,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.R.attr.key;
+import static android.R.attr.thumbnail;
+import static com.example.android.feednews.R.string.world;
 
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<News>> {
@@ -29,6 +35,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private String TECHNOLOGY = "technology";
     private String TRAVEL = "travel";
     private String WORLD = "world";
+    private String ENVIRONMENT = "environment";
+    private String BUSINESS = "business";
+    private String SPORT  = "sport";
     private String SECTION = WORLD;
     private String URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
     private CardView newsCard;
@@ -96,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             public void onClick(View v) {
                 count += 10;
                 if (count < 41) {
-                    URL = "https://content.guardianapis.com/search?&section=world&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                    URL = "https://content.guardianapis.com/search?&section="+ SECTION +"&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
                     adapter.clear();
                     Log.i(LOG_TAG, URL);
                     getLoaderManager().restartLoader(0, null, MainActivity.this);
@@ -107,6 +116,61 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+         getMenuInflater().inflate(R.menu.categories_menu , menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.world_news:
+                SECTION = WORLD;
+                URL = "https://content.guardianapis.com/search?&section="+ SECTION +"&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                adapter.clear();
+                getLoaderManager().restartLoader(0, null, MainActivity.this);
+                return true;
+            case R.id.technology_news:
+                SECTION = TECHNOLOGY;
+                URL = "https://content.guardianapis.com/search?&section="+ SECTION +"&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                adapter.clear();
+                getLoaderManager().restartLoader(0, null, MainActivity.this);
+                return true;
+            case R.id.travel_news:
+                SECTION = TRAVEL;
+                URL = "https://content.guardianapis.com/search?&section="+ SECTION +"&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                adapter.clear();
+                getLoaderManager().restartLoader(0, null, MainActivity.this);
+                return true;
+            case R.id.culture_news:
+                SECTION = CULTURE;
+                URL = "https://content.guardianapis.com/search?&section="+ SECTION +"&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                adapter.clear();
+                getLoaderManager().restartLoader(0, null, MainActivity.this);
+                return true;
+            case R.id.business_news:
+                SECTION = BUSINESS;
+                URL = "https://content.guardianapis.com/search?&section="+ SECTION +"&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                adapter.clear();
+                getLoaderManager().restartLoader(0, null, MainActivity.this);
+                return true;
+            case R.id.sport_news:
+                SECTION = SPORT;
+                URL = "https://content.guardianapis.com/search?&section="+ SECTION +"&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                adapter.clear();
+                getLoaderManager().restartLoader(0, null, MainActivity.this);
+                return true;
+            case R.id.environment_news:
+                SECTION = ENVIRONMENT;
+                URL = "https://content.guardianapis.com/search?&section="+ SECTION +"&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                adapter.clear();
+                getLoaderManager().restartLoader(0, null, MainActivity.this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
