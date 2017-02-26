@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public static final String LOG_TAG = NewsLoader.class.getName();
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,8 +119,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             case R.id.world_news:
                 SECTION = WORLD;
                 count = 10;
-                if (checkInternet())
-                {
+                if (checkInternet()) {
                     readmore.setVisibility(View.VISIBLE);
                     URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
                     adapter.clear();
@@ -131,8 +129,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             case R.id.technology_news:
                 SECTION = TECHNOLOGY;
                 count = 10;
-                if (checkInternet())
-                {
+                if (checkInternet()) {
                     readmore.setVisibility(View.VISIBLE);
                     URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
                     adapter.clear();
@@ -142,8 +139,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             case R.id.travel_news:
                 SECTION = TRAVEL;
                 count = 10;
-                if (checkInternet())
-                {
+                if (checkInternet()) {
                     readmore.setVisibility(View.VISIBLE);
                     URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
                     adapter.clear();
@@ -153,8 +149,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             case R.id.culture_news:
                 SECTION = CULTURE;
                 count = 10;
-                if (checkInternet())
-                {
+                if (checkInternet()) {
                     readmore.setVisibility(View.VISIBLE);
                     URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
                     adapter.clear();
@@ -164,8 +159,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             case R.id.business_news:
                 SECTION = BUSINESS;
                 count = 10;
-                if (checkInternet())
-                {
+                if (checkInternet()) {
                     readmore.setVisibility(View.VISIBLE);
                     URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
                     adapter.clear();
@@ -184,8 +178,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             case R.id.environment_news:
                 SECTION = ENVIRONMENT;
                 count = 10;
-                if (checkInternet())
-                {
+                if (checkInternet()) {
                     readmore.setVisibility(View.VISIBLE);
                     URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
                     adapter.clear();
@@ -216,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Log.e(LOG_TAG, "onLoaderReset...");
         adapter.clear();
     }
+
     private boolean checkInternet() {
         info = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         activeNetwork = info.getActiveNetworkInfo();
