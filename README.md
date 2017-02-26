@@ -3,3 +3,4 @@
 >This app uses the Guadrian API to collect information about the news.
 
 ## Screenshots
+![Screenshot1](screens/Screenshot_1.png)
