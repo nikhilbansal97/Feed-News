@@ -169,11 +169,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             case R.id.sport_news:
                 SECTION = SPORT;
                 count = 10;
-                checkInternet();
-                readmore.setVisibility(View.VISIBLE);
-                URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                adapter.clear();
-                getLoaderManager().restartLoader(0, null, MainActivity.this);
+                if (checkInternet()) {
+                    readmore.setVisibility(View.VISIBLE);
+                    URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                    adapter.clear();
+                    getLoaderManager().restartLoader(0, null, MainActivity.this);
+                }
                 return true;
             case R.id.environment_news:
                 SECTION = ENVIRONMENT;
