@@ -8,6 +8,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
@@ -19,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +51,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private RelativeLayout no_internet;
     ConnectivityManager info;
     NetworkInfo activeNetwork;
+    private NavigationView mNavigation;
     public static final String LOG_TAG = NewsLoader.class.getName();
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mToggle;
 
 
     @Override
@@ -58,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
         }
 
+        mNavigation= (NavigationView) findViewById(R.id.navigation);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
         no_internet = (RelativeLayout) findViewById(R.id.no_internet_view);
         news_list = (ListView) findViewById(R.id.list_view);
         readmore = (CardView) findViewById(R.id.readmore);
@@ -68,6 +78,97 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         adapter.clear();
         news_list.setEmptyView(loading);
         newsCard = (CardView) findViewById(R.id.news_card);
+        mToggle = new ActionBarDrawerToggle(this , mDrawerLayout , R.string.open , R.string.close);
+
+        mDrawerLayout.addDrawerListener(mToggle);
+        mToggle.syncState();
+        mNavigation.setItemIconTintList(null);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        mNavigation.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                mDrawerLayout.closeDrawers();
+                switch (item.getItemId()) {
+                    case R.id.world_news:
+                        SECTION = WORLD;
+                        Toast.makeText(MainActivity.this, "World News", Toast.LENGTH_SHORT).show();
+                        count = 10;
+                        if (checkInternet()) {
+                            readmore.setVisibility(View.VISIBLE);
+                            URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                            adapter.clear();
+                            getLoaderManager().restartLoader(0, null, MainActivity.this);
+                        }
+                        return true;
+                    case R.id.technology_news:
+                        SECTION = TECHNOLOGY;
+                        count = 10;
+                        if (checkInternet()) {
+                            readmore.setVisibility(View.VISIBLE);
+                            URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                            adapter.clear();
+                            getLoaderManager().restartLoader(0, null, MainActivity.this);
+                        }
+                        return true;
+                    case R.id.travel_news:
+                        SECTION = TRAVEL;
+                        count = 10;
+                        if (checkInternet()) {
+                            readmore.setVisibility(View.VISIBLE);
+                            URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                            adapter.clear();
+                            getLoaderManager().restartLoader(0, null, MainActivity.this);
+                        }
+                        return true;
+                    case R.id.culture_news:
+                        SECTION = CULTURE;
+                        count = 10;
+                        if (checkInternet()) {
+                            readmore.setVisibility(View.VISIBLE);
+                            URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                            adapter.clear();
+                            getLoaderManager().restartLoader(0, null, MainActivity.this);
+                        }
+                        return true;
+                    case R.id.business_news:
+                        SECTION = BUSINESS;
+                        count = 10;
+                        if (checkInternet()) {
+                            readmore.setVisibility(View.VISIBLE);
+                            URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                            adapter.clear();
+                            getLoaderManager().restartLoader(0, null, MainActivity.this);
+                        }
+                        return true;
+                    case R.id.sport_news:
+                        SECTION = SPORT;
+                        count = 10;
+                        if (checkInternet()) {
+                            readmore.setVisibility(View.VISIBLE);
+                            URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                            adapter.clear();
+                            getLoaderManager().restartLoader(0, null, MainActivity.this);
+                        }
+                        return true;
+                    case R.id.environment_news:
+                        SECTION = ENVIRONMENT;
+                        count = 10;
+                        if (checkInternet()) {
+                            readmore.setVisibility(View.VISIBLE);
+                            URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+                            adapter.clear();
+                            getLoaderManager().restartLoader(0, null, MainActivity.this);
+                        }
+                        return true;
+                    default:
+                        Toast.makeText(MainActivity.this, "Something Wrong", Toast.LENGTH_SHORT).show();
+                        return true;
+                }
+            }
+        });
+
         checkInternet();
 
         news_list.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -108,84 +209,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.categories_menu, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.world_news:
-                SECTION = WORLD;
-                count = 10;
-                if (checkInternet()) {
-                    readmore.setVisibility(View.VISIBLE);
-                    URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                    adapter.clear();
-                    getLoaderManager().restartLoader(0, null, MainActivity.this);
-                }
-                return true;
-            case R.id.technology_news:
-                SECTION = TECHNOLOGY;
-                count = 10;
-                if (checkInternet()) {
-                    readmore.setVisibility(View.VISIBLE);
-                    URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                    adapter.clear();
-                    getLoaderManager().restartLoader(0, null, MainActivity.this);
-                }
-                return true;
-            case R.id.travel_news:
-                SECTION = TRAVEL;
-                count = 10;
-                if (checkInternet()) {
-                    readmore.setVisibility(View.VISIBLE);
-                    URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                    adapter.clear();
-                    getLoaderManager().restartLoader(0, null, MainActivity.this);
-                }
-                return true;
-            case R.id.culture_news:
-                SECTION = CULTURE;
-                count = 10;
-                if (checkInternet()) {
-                    readmore.setVisibility(View.VISIBLE);
-                    URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                    adapter.clear();
-                    getLoaderManager().restartLoader(0, null, MainActivity.this);
-                }
-                return true;
-            case R.id.business_news:
-                SECTION = BUSINESS;
-                count = 10;
-                if (checkInternet()) {
-                    readmore.setVisibility(View.VISIBLE);
-                    URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                    adapter.clear();
-                    getLoaderManager().restartLoader(0, null, MainActivity.this);
-                }
-                return true;
-            case R.id.sport_news:
-                SECTION = SPORT;
-                count = 10;
-                if (checkInternet()) {
-                    readmore.setVisibility(View.VISIBLE);
-                    URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                    adapter.clear();
-                    getLoaderManager().restartLoader(0, null, MainActivity.this);
-                }
-                return true;
-            case R.id.environment_news:
-                SECTION = ENVIRONMENT;
-                count = 10;
-                if (checkInternet()) {
-                    readmore.setVisibility(View.VISIBLE);
-                    URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                    adapter.clear();
-                    getLoaderManager().restartLoader(0, null, MainActivity.this);
-                }
-                return true;
+        if(mToggle.onOptionsItemSelected(item))
+        {
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

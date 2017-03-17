@@ -1,40 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/world_news"
-        android:title="@string/world"
-        app:showAsAction="never" />
+        android:icon="@drawable/internet"
+        android:title="@string/world" />
 
     <item
         android:id="@+id/travel_news"
-        android:title="@string/travel"
-        app:showAsAction="never" />
+        android:icon="@drawable/suitcase"
+        android:title="@string/travel"/>
 
     <item
         android:id="@+id/technology_news"
-        android:title="@string/technology"
-        app:showAsAction="never" />
+        android:icon="@drawable/smartphone"
+        android:title="@string/technology" />
 
     <item
         android:id="@+id/culture_news"
-        android:title="@string/culture"
-        app:showAsAction="never" />
+        android:icon="@drawable/theatermasks"
+        android:title="@string/culture"/>
 
     <item
         android:id="@+id/business_news"
-        android:title="@string/business"
-        app:showAsAction="never" />
+        android:icon="@drawable/people"
+        android:title="@string/business"/>
 
     <item
         android:id="@+id/sport_news"
-        android:title="@string/sports"
-        app:showAsAction="never" />
+        android:icon="@drawable/football"
+        android:title="@string/sports"/>
 
     <item
         android:id="@+id/environment_news"
-        android:title="@string/environment"
-        app:showAsAction="never" />
+        android:icon="@drawable/tree"
+        android:title="@string/environment" />
 
 </menu>
