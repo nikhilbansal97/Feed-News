@@ -72,7 +72,7 @@ public class QueryUtils {
         return jsonResponse;
     }
 
-    private static String readStream(InputStream inputStream) throws IOException {
+    private static String readStream(InputStream inputStream)throws IOException {
         StringBuilder output = new StringBuilder();
         if (inputStream != null) {
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
