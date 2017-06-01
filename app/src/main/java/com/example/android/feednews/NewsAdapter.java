@@ -9,20 +9,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.android.feednews.pojo.Result;
+import com.example.android.feednews.pojo.Tag;
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
 
-import java.util.ArrayList;
+public class NewsAdapter extends ArrayAdapter<Result> {
 
-
-/**
- * Created by NIKHIL on 14-02-2017.
- */
-
-public class NewsAdapter extends ArrayAdapter<News> {
-
-    public NewsAdapter(Context context, ArrayList<News> news) {
-        super(context, 0, news);
+    public NewsAdapter(Context context, List<Result> results) {
+        super(context, 0, results);
     }
 
     @NonNull
@@ -34,25 +30,29 @@ public class NewsAdapter extends ArrayAdapter<News> {
             listItemView = LayoutInflater.from(getContext()).inflate(
                     R.layout.news_item, parent, false);
         }
-        News currentNews = getItem(position);
+        Result currentNews = getItem(position);
 
         TextView title = (TextView) listItemView.findViewById(R.id.news_title);
-        title.setText(currentNews.getTitle());
+        title.setText(currentNews.getWebTitle());
 
         TextView description = (TextView) listItemView.findViewById(R.id.news_description);
-        description.setText(currentNews.getDescription());
+        description.setText(currentNews.getFields().getTrailText());
 
         TextView author = (TextView) listItemView.findViewById(R.id.news_contributor);
-        author.setText(currentNews.getAuthor());
+        List<Tag> tags = currentNews.getTags();
+        if(tags.size() != 0)
+            author.setText(tags.get(0).getWebTitle());
+        else
+            author.setText("");
 
         TextView date = (TextView) listItemView.findViewById(R.id.news_date);
-        date.setText(currentNews.getDate());
+        date.setText(currentNews.getWebPublicationDate());
 
         ImageView image = (ImageView) listItemView.findViewById(R.id.news_image);
-        Picasso.with(getContext()).load(currentNews.getImageResource()).into(image);
+        Picasso.with(getContext()).load(currentNews.getFields().getThumbnail()).into(image);
 
         TextView section = (TextView) listItemView.findViewById(R.id.news_section);
-        section.setText(currentNews.getSection());
+        section.setText(currentNews.getSectionName());
 
         return listItemView;
     }

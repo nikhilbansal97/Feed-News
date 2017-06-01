@@ -1,36 +1,33 @@
 package com.example.android.feednews;
 
-import android.app.LoaderManager;
-import android.content.Context;
-import android.content.Intent;
-import android.content.Loader;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.NonNull;
+import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
+
+import com.example.android.feednews.pojo.NewsModel;
+import com.example.android.feednews.pojo.Response;
+import com.example.android.feednews.pojo.Result;
+import com.example.android.feednews.rest.ApiClient;
+import com.example.android.feednews.rest.ApiInterface;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.view.View.GONE;
+import retrofit2.Call;
+import retrofit2.Callback;
 
-
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<News>> {
+public class MainActivity extends AppCompatActivity {
 
     private ListView news_list;
     private int count = 10;
@@ -55,6 +52,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
 
+    public static final String API_KEY = "6de1a8cd-9a9d-4016-8273-26de99416430";
+    public static final String FIELDS = "thumbnail,trailText";
+    public static final String TAGS = "contributor";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,19 +65,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
         }
 
-        mNavigation= (NavigationView) findViewById(R.id.navigation);
+        mNavigation = (NavigationView) findViewById(R.id.navigation);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
         no_internet = (RelativeLayout) findViewById(R.id.no_internet_view);
         news_list = (ListView) findViewById(R.id.list_view);
         readmore = (CardView) findViewById(R.id.readmore);
         readmore.setVisibility(View.VISIBLE);
         loading = (ProgressBar) findViewById(R.id.loading);
-        adapter = new NewsAdapter(MainActivity.this, new ArrayList<News>());
+        adapter = new NewsAdapter(MainActivity.this,new ArrayList<Result>());
         news_list.setAdapter(adapter);
         adapter.clear();
         news_list.setEmptyView(loading);
         newsCard = (CardView) findViewById(R.id.news_card);
-        mToggle = new ActionBarDrawerToggle(this , mDrawerLayout , R.string.open , R.string.close);
+        mToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.open, R.string.close);
 
         mDrawerLayout.addDrawerListener(mToggle);
         mToggle.syncState();
@@ -85,6 +85,26 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+        Call<NewsModel> call = apiInterface.getNews(API_KEY,SECTION,count,FIELDS,TAGS);
+        call.enqueue(new Callback<NewsModel>() {
+            @Override
+            public void onResponse(Call<NewsModel> call, retrofit2.Response<NewsModel> response) {
+                NewsModel news = response.body();
+                Response response1 = news.getResponse();
+                int pages = response1.getPages();
+                List<Result> results = response1.getResults();
+                adapter = new NewsAdapter(MainActivity.this, results);
+                news_list.setAdapter(adapter);
+                Log.v("News : ",Integer.toString(pages));
+            }
+
+            @Override
+            public void onFailure(Call<NewsModel> call, Throwable t) {
+
+            }
+        });
+/*
         mNavigation.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -215,42 +235,44 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
         return super.onOptionsItemSelected(item);
     }
+    */
+//
+//    @Override
+//    public Loader<List<News>> onCreateLoader(int id, Bundle args) {
+//        Log.e(LOG_TAG, "onCreateLoader...");
+//        return new NewsLoader(this, URL);
+//    }
+//
+//    @Override
+//    public void onLoadFinished(Loader<List<News>> loader, List<News> news) {
+//        Log.e(LOG_TAG, "onLoaderFinished...");
+//        adapter.clear();
+//        if (news != null && !news.isEmpty()) {
+//            adapter.addAll(news);
+//        }
+//    }
+//
+//    @Override
+//    public void onLoaderReset(Loader<List<News>> loader) {
+//        Log.e(LOG_TAG, "onLoaderReset...");
+//        adapter.clear();
+//    }
 
-    @Override
-    public Loader<List<News>> onCreateLoader(int id, Bundle args) {
-        Log.e(LOG_TAG, "onCreateLoader...");
-        return new NewsLoader(this, URL);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<List<News>> loader, List<News> news) {
-        Log.e(LOG_TAG, "onLoaderFinished...");
-        adapter.clear();
-        if (news != null && !news.isEmpty()) {
-            adapter.addAll(news);
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<List<News>> loader) {
-        Log.e(LOG_TAG, "onLoaderReset...");
-        adapter.clear();
-    }
-
-    private boolean checkInternet() {
-        info = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        activeNetwork = info.getActiveNetworkInfo();
-        if (activeNetwork != null && activeNetwork.isConnected()) {
-            no_internet.setVisibility(GONE);
-            LoaderManager loaderManager = getLoaderManager();
-            loaderManager.initLoader(0, null, this);
-            readmore.setVisibility(View.VISIBLE);
-            return true;
-        } else {
-            readmore.setVisibility(View.GONE);
-            no_internet.setVisibility(View.VISIBLE);
-            loading.setVisibility(GONE);
-            return false;
-        }
+//    private boolean checkInternet() {
+//        info = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//        activeNetwork = info.getActiveNetworkInfo();
+//        if (activeNetwork != null && activeNetwork.isConnected()) {
+//            no_internet.setVisibility(GONE);
+//            LoaderManager loaderManager = getLoaderManager();
+//            loaderManager.initLoader(0, null, this);
+//            readmore.setVisibility(View.VISIBLE);
+//            return true;
+//        } else {
+//            readmore.setVisibility(View.GONE);
+//            no_internet.setVisibility(View.VISIBLE);
+//            loading.setVisibility(GONE);
+//            return false;
+//        }
+//    }
     }
 }
