@@ -1,19 +1,29 @@
 package com.example.android.feednews;
 
+import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.CardView;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.example.android.feednews.pojo.NewsModel;
 import com.example.android.feednews.pojo.Response;
@@ -32,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private ListView news_list;
     private int count = 10;
     private NewsAdapter adapter;
+    private int REQUEST_DATA = 1;
+    private int REQUEST_NOTIFICAION = 2;
     private String CULTURE = "culture";
     private String TECHNOLOGY = "technology";
     private String TRAVEL = "travel";
@@ -40,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private String BUSINESS = "business";
     private String SPORT = "sport";
     private String SECTION = WORLD;
-    private String URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
+    private String URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=starRating,thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
     private CardView newsCard;
     private CardView readmore;
     private ProgressBar loading;
@@ -56,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
     public static final String FIELDS = "thumbnail,trailText";
     public static final String TAGS = "contributor";
 
+    private NetworkBroadcastReceiver broadcastReceiver;
+    private IntentFilter intentFilter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +80,12 @@ public class MainActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
         }
 
+        // Initialize Broadcast Receiver
+        broadcastReceiver = new NetworkBroadcastReceiver();
+        // Initialize IntentFilter
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_MANAGE_NETWORK_USAGE);
+
         mNavigation = (NavigationView) findViewById(R.id.navigation);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
         no_internet = (RelativeLayout) findViewById(R.id.no_internet_view);
@@ -72,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         readmore = (CardView) findViewById(R.id.readmore);
         readmore.setVisibility(View.VISIBLE);
         loading = (ProgressBar) findViewById(R.id.loading);
-        adapter = new NewsAdapter(MainActivity.this,new ArrayList<Result>());
+        adapter = new NewsAdapter(MainActivity.this, new ArrayList<Result>());
         news_list.setAdapter(adapter);
         adapter.clear();
         news_list.setEmptyView(loading);
@@ -85,8 +106,61 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        getData(this,SECTION,REQUEST_DATA);
+
+        news_list.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Result current_news = adapter.getItem(position);
+                        String url = current_news.getWebUrl();
+                        Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
+                        intent.putExtra("url", url);
+                        startActivity(intent);
+                    }
+                }
+        );
+
+        mNavigation.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        switch(item.getItemId())
+                        {
+                            case R.id.world_news:
+                                SECTION = WORLD;
+                                break;
+                            case R.id.travel_news:
+                                SECTION = TRAVEL;
+                                break;
+                            case R.id.technology_news:
+                                SECTION = TECHNOLOGY;
+                                break;
+                            case R.id.sport_news:
+                                SECTION = SPORT;
+                                break;
+                            case R.id.environment_news:
+                                SECTION = ENVIRONMENT;
+                                break;
+                            case R.id.culture_news:
+                                SECTION = CULTURE;
+                                break;
+                            case R.id.business_news:
+                                SECTION = BUSINESS;
+                                break;
+                            default:
+                                Toast.makeText(MainActivity.this, "Item Invalid!", Toast.LENGTH_SHORT).show();
+                        }
+                        getData(MainActivity.this,SECTION,REQUEST_DATA);
+                        return true;
+                    }
+                }
+        );
+    }
+
+    public void getData(final Context context, final String section , final int requestCode){
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
-        Call<NewsModel> call = apiInterface.getNews(API_KEY,SECTION,count,FIELDS,TAGS);
+        Call<NewsModel> call = apiInterface.getNews(API_KEY, section, count, FIELDS, TAGS);
         call.enqueue(new Callback<NewsModel>() {
             @Override
             public void onResponse(Call<NewsModel> call, retrofit2.Response<NewsModel> response) {
@@ -94,169 +168,63 @@ public class MainActivity extends AppCompatActivity {
                 Response response1 = news.getResponse();
                 int pages = response1.getPages();
                 List<Result> results = response1.getResults();
-                adapter = new NewsAdapter(MainActivity.this, results);
-                news_list.setAdapter(adapter);
-                Log.v("News : ",Integer.toString(pages));
+                if(requestCode == REQUEST_DATA){
+                    adapter = new NewsAdapter(context, results);
+                    news_list.setAdapter(adapter);
+                } else if(requestCode == REQUEST_NOTIFICAION){
+                    for(Result res : results){
+                        String star = res.getFields().getStarRating();
+                        if(star.equals("5")){
+                            createNotification(context,res);
+                        }
+                    }
+                }
+                Log.v("News : ", Integer.toString(pages) + section);
             }
 
             @Override
             public void onFailure(Call<NewsModel> call, Throwable t) {
-
+                Log.v("MainActivity : ", "Failed loading data!");
             }
         });
-/*
-        mNavigation.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                mDrawerLayout.closeDrawers();
-                switch (item.getItemId()) {
-                    case R.id.world_news:
-                        SECTION = WORLD;
-                        Toast.makeText(MainActivity.this, "World News", Toast.LENGTH_SHORT).show();
-                        count = 10;
-                        if (checkInternet()) {
-                            readmore.setVisibility(View.VISIBLE);
-                            URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                            adapter.clear();
-                            getLoaderManager().restartLoader(0, null, MainActivity.this);
-                        }
-                        return true;
-                    case R.id.technology_news:
-                        SECTION = TECHNOLOGY;
-                        count = 10;
-                        if (checkInternet()) {
-                            readmore.setVisibility(View.VISIBLE);
-                            URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                            adapter.clear();
-                            getLoaderManager().restartLoader(0, null, MainActivity.this);
-                        }
-                        return true;
-                    case R.id.travel_news:
-                        SECTION = TRAVEL;
-                        count = 10;
-                        if (checkInternet()) {
-                            readmore.setVisibility(View.VISIBLE);
-                            URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                            adapter.clear();
-                            getLoaderManager().restartLoader(0, null, MainActivity.this);
-                        }
-                        return true;
-                    case R.id.culture_news:
-                        SECTION = CULTURE;
-                        count = 10;
-                        if (checkInternet()) {
-                            readmore.setVisibility(View.VISIBLE);
-                            URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                            adapter.clear();
-                            getLoaderManager().restartLoader(0, null, MainActivity.this);
-                        }
-                        return true;
-                    case R.id.business_news:
-                        SECTION = BUSINESS;
-                        count = 10;
-                        if (checkInternet()) {
-                            readmore.setVisibility(View.VISIBLE);
-                            URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                            adapter.clear();
-                            getLoaderManager().restartLoader(0, null, MainActivity.this);
-                        }
-                        return true;
-                    case R.id.sport_news:
-                        SECTION = SPORT;
-                        count = 10;
-                        if (checkInternet()) {
-                            readmore.setVisibility(View.VISIBLE);
-                            URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                            adapter.clear();
-                            getLoaderManager().restartLoader(0, null, MainActivity.this);
-                        }
-                        return true;
-                    case R.id.environment_news:
-                        SECTION = ENVIRONMENT;
-                        count = 10;
-                        if (checkInternet()) {
-                            readmore.setVisibility(View.VISIBLE);
-                            URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                            adapter.clear();
-                            getLoaderManager().restartLoader(0, null, MainActivity.this);
-                        }
-                        return true;
-                    default:
-                        Toast.makeText(MainActivity.this, "Something Wrong", Toast.LENGTH_SHORT).show();
-                        return true;
-                }
-            }
-        });
-
-        checkInternet();
-
-        news_list.setOnItemClickListener(new AdapterView.OnItemClickListener()
-
-                                         {
-                                             @Override
-                                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                                 News current_news = adapter.getItem(position);
-                                                 Uri bookUri = Uri.parse(current_news.getUrl());
-
-                                                 Intent news_intent = new Intent(Intent.ACTION_VIEW, bookUri);
-                                                 startActivity(news_intent);
-                                             }
-                                         }
-
-        );
-
-        readmore.setOnClickListener(new View.OnClickListener()
-
-                                    {
-                                        @Override
-                                        public void onClick(View v) {
-                                            count += 10;
-                                            if (count < 41) {
-                                                URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
-                                                adapter.clear();
-                                                Log.i(LOG_TAG, URL);
-                                                getLoaderManager().restartLoader(0, null, MainActivity.this);
-                                                Log.d(LOG_TAG, "readmore clicked");
-                                            } else {
-                                                readmore.setVisibility(GONE);
-                                            }
-                                        }
-                                    }
-
-        );
-
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if(mToggle.onOptionsItemSelected(item))
-        {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(broadcastReceiver,intentFilter);
     }
-    */
-//
-//    @Override
-//    public Loader<List<News>> onCreateLoader(int id, Bundle args) {
-//        Log.e(LOG_TAG, "onCreateLoader...");
-//        return new NewsLoader(this, URL);
-//    }
-//
-//    @Override
-//    public void onLoadFinished(Loader<List<News>> loader, List<News> news) {
-//        Log.e(LOG_TAG, "onLoaderFinished...");
-//        adapter.clear();
-//        if (news != null && !news.isEmpty()) {
-//            adapter.addAll(news);
-//        }
-//    }
-//
-//    @Override
-//    public void onLoaderReset(Loader<List<News>> loader) {
-//        Log.e(LOG_TAG, "onLoaderReset...");
-//        adapter.clear();
-//    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
+    }
+
+    public class NetworkBroadcastReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            getData(context,WORLD,REQUEST_NOTIFICAION);
+        }
+    }
+
+    public void createNotification(Context context, Result result){
+
+        NotificationCompat.Builder builder = (NotificationCompat.Builder) new NotificationCompat.Builder(context)
+                .setContentTitle("Hot News!!")
+                .setContentText("Lets check out!")
+                .setSmallIcon(R.drawable.icon_app)
+                .setAutoCancel(true);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+            builder.setPriority(NotificationCompat.PRIORITY_HIGH);
+
+        NotificationManager manager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        manager.notify(444,builder.build());
+    }
+
+}
 
 //    private boolean checkInternet() {
 //        info = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -274,5 +242,3 @@ public class MainActivity extends AppCompatActivity {
 //            return false;
 //        }
 //    }
-    }
-}

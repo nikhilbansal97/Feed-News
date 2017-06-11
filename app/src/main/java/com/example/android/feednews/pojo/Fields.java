@@ -15,6 +15,17 @@ public class Fields {
     @SerializedName("thumbnail")
     @Expose
     private String thumbnail;
+    @SerializedName("starRating")
+    @Expose
+    private String starRating;
+
+    public String getStarRating() {
+        return starRating;
+    }
+
+    public void setStarRating(String starRating) {
+        this.starRating = starRating;
+    }
 
     public String getTrailText() {
         return trailText;
