@@ -28,7 +28,8 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_centerInParent="true"
-                android:src="@drawable/no_internet" />
+                android:src="@drawable/no_internet"
+                android:visibility="invisible"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -37,7 +38,8 @@
                 android:layout_centerHorizontal="true"
                 android:text="@string/no_internet"
                 android:textColor="#FFFFFF"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:visibility="invisible"/>
 
         </RelativeLayout>
 

@@ -12,9 +12,11 @@ public class Fields {
     @SerializedName("trailText")
     @Expose
     private String trailText;
+
     @SerializedName("thumbnail")
     @Expose
     private String thumbnail;
+
     @SerializedName("starRating")
     @Expose
     private String starRating;
