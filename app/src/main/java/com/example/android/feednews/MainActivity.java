@@ -47,13 +47,10 @@ public class MainActivity extends AppCompatActivity {
     private String BUSINESS = "business";
     private String SPORT = "sport";
     private String SECTION = WORLD;
-    private String URL = "https://content.guardianapis.com/search?&section=" + SECTION + "&page-size=" + count + "&show-fields=starRating,thumbnail,trailText&show-tags=contributor&api-key=6de1a8cd-9a9d-4016-8273-26de99416430";
     private CardView newsCard;
     private CardView readmore;
     private ProgressBar loading;
     private RelativeLayout no_internet;
-    ConnectivityManager info;
-    NetworkInfo activeNetwork;
     private NavigationView mNavigation;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
@@ -72,8 +69,18 @@ public class MainActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
         }
 
+        /**
+         * Setup Navigation Drawer
+         */
+
         mNavigation = (NavigationView) findViewById(R.id.navigation);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
+        mToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.open, R.string.close);
+        mDrawerLayout.addDrawerListener(mToggle);
+        mToggle.syncState();
+        mNavigation.setItemIconTintList(null);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         no_internet = (RelativeLayout) findViewById(R.id.no_internet_view);
         news_list = (ListView) findViewById(R.id.list_view);
         readmore = (CardView) findViewById(R.id.readmore);
@@ -84,13 +91,6 @@ public class MainActivity extends AppCompatActivity {
         adapter.clear();
         news_list.setEmptyView(loading);
         newsCard = (CardView) findViewById(R.id.news_card);
-        mToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.open, R.string.close);
-
-        mDrawerLayout.addDrawerListener(mToggle);
-        mToggle.syncState();
-        mNavigation.setItemIconTintList(null);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         getData(this, SECTION);
         NewsUtilities.scheduleNews(this);
@@ -167,19 +167,3 @@ public class MainActivity extends AppCompatActivity {
 
 }
 
-//    private boolean checkInternet() {
-//        info = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-//        activeNetwork = info.getActiveNetworkInfo();
-//        if (activeNetwork != null && activeNetwork.isConnected()) {
-//            no_internet.setVisibility(GONE);
-//            LoaderManager loaderManager = getLoaderManager();
-//            loaderManager.initLoader(0, null, this);
-//            readmore.setVisibility(View.VISIBLE);
-//            return true;
-//        } else {
-//            readmore.setVisibility(View.GONE);
-//            no_internet.setVisibility(View.VISIBLE);
-//            loading.setVisibility(GONE);
-//            return false;
-//        }
-//    }
