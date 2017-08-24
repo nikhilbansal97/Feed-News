@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
 
-    public static final String API_KEY = "6de1a8cd-9a9d-4016-8273-26de99416430";
+    public static final String API_KEY = "YOUR-API-KEY";
     public static final String FIELDS = "starRating,thumbnail,trailText";
     public static final String TAGS = "contributor";
 
