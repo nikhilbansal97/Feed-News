@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
 
-    public static final String API_KEY = "YOUR-API-KEY";
+    public static final String API_KEY = "6de1a8cd-9a9d-4016-8273-26de99416430";
     public static final String FIELDS = "starRating,thumbnail,trailText";
     public static final String TAGS = "contributor";
 
@@ -72,14 +72,14 @@ public class MainActivity extends AppCompatActivity {
         /**
          * Setup Navigation Drawer
          */
-
         mNavigation = (NavigationView) findViewById(R.id.navigation);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
         mToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.open, R.string.close);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mDrawerLayout.addDrawerListener(mToggle);
         mToggle.syncState();
         mNavigation.setItemIconTintList(null);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         no_internet = (RelativeLayout) findViewById(R.id.no_internet_view);
         news_list = (ListView) findViewById(R.id.list_view);
